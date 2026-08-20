@@ -1,0 +1,776 @@
+<title>Forecast Request Form</title>
+<style>
+  :root{
+    --paper:#ffffff; --surface:#f2f5f4; --sunk:#e8edeb;
+    --ink:#14171a; --ink-2:#3d4a47; --muted:#6b7772; --line:#d9e1de;
+    --acc:#0e5c51; --acc-2:#0a463e; --acc-soft:#e2efeb;
+    --warn:#a8412a; --warn-soft:#f7e9e5;
+    --ok:#0e5c51;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --r:3px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#121716; --surface:#1a2220; --sunk:#141b19;
+      --ink:#e9efec; --ink-2:#b9c6c2; --muted:#8a9995; --line:#2b3633;
+      --acc:#5cc0ab; --acc-2:#7fd4c1; --acc-soft:#17302b;
+      --warn:#e08a70; --warn-soft:#33201a;
+      --ok:#5cc0ab;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#121716; --surface:#1a2220; --sunk:#141b19;
+    --ink:#e9efec; --ink-2:#b9c6c2; --muted:#8a9995; --line:#2b3633;
+    --acc:#5cc0ab; --acc-2:#7fd4c1; --acc-soft:#17302b;
+    --warn:#e08a70; --warn-soft:#33201a;
+    --ok:#5cc0ab;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans);
+       -webkit-font-smoothing:antialiased;padding-bottom:124px}
+  .wrap{max-width:980px;margin:0 auto;padding:34px 22px 0}
+
+  /* masthead */
+  .mast{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+  .mast h1{font-size:clamp(22px,4.4vw,32px);font-weight:800;letter-spacing:.14em;margin:0;text-transform:uppercase}
+  .mast .org{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;text-align:right;line-height:1.6}
+  .rule{height:2px;background:var(--acc);margin:10px 0 0}
+  .lede{margin:16px 0 26px;font-size:13.5px;line-height:1.6;color:var(--ink-2);
+        background:var(--surface);border-left:3px solid var(--acc);padding:12px 15px;border-radius:0 var(--r) var(--r) 0}
+  .lede b{color:var(--ink)}
+
+  /* sections */
+  section{margin-bottom:30px}
+  .shead{display:flex;align-items:baseline;gap:10px;border-bottom:1.5px solid var(--acc);padding-bottom:6px;margin-bottom:16px}
+  .shead .ltr{font:700 11px/1 var(--mono);color:var(--acc);letter-spacing:.1em}
+  .shead h2{margin:0;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px 14px}
+  .f{display:flex;flex-direction:column;gap:5px;min-width:0}
+  label.lbl{font-size:9.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);display:flex;gap:5px;align-items:center;line-height:1.4}
+  label.lbl .dot{width:5px;height:5px;border-radius:50%;background:var(--acc);flex:none}
+  label.lbl .hint{font-weight:400;letter-spacing:0;text-transform:none;font-size:10.5px;color:var(--muted);opacity:.85}
+
+  .in{font:14px/1.4 var(--mono);color:var(--ink);background:transparent;border:none;
+      border-bottom:1.5px solid var(--line);padding:5px 2px;width:100%;border-radius:0}
+  .in::placeholder{color:var(--muted);opacity:.5}
+  .in:focus{outline:none;border-bottom-color:var(--acc);background:var(--acc-soft)}
+  textarea.in{resize:vertical;min-height:62px;border:1.5px solid var(--line);padding:8px 9px;border-radius:var(--r)}
+  textarea.in:focus{border-color:var(--acc)}
+  .f.miss .in{border-bottom-color:var(--warn)}
+  .f.miss textarea.in{border-color:var(--warn)}
+  .f.miss label.lbl{color:var(--warn)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding-top:1px}
+  .chip{font:600 12.5px/1 var(--sans);color:var(--ink-2);background:var(--surface);
+        border:1.5px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--acc);color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--paper)}
+  .chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+  .f.miss .chip{border-color:var(--warn)}
+
+  .note{grid-column:span 12;font-size:12px;line-height:1.55;color:var(--muted);
+        border-left:2px solid var(--acc);padding-left:11px;margin-top:2px}
+
+  /* derived-value strip */
+  .calc{grid-column:span 12;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+        background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;font-size:13px}
+  .calc .tag{font:700 9.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .calc .val{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+  .calc.bad{background:var(--warn-soft);border-color:var(--warn)}
+  .calc.bad .tag{color:var(--warn)}
+
+  /* conditional requirements */
+  .cond{display:flex;flex-direction:column;gap:0}
+  .cbox{border:1.5px solid var(--acc);border-radius:var(--r);padding:12px 14px;margin-top:10px;background:var(--acc-soft)}
+  .cbox h3{margin:0 0 4px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+  .cbox p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  .cempty{font-size:12.5px;color:var(--muted);padding:2px 0 0}
+
+  /* action bar */
+  .bar{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1.5px solid var(--line);
+       padding:12px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;z-index:20}
+  .bar .stat{font-size:12.5px;color:var(--muted);flex:1;min-width:180px;line-height:1.45}
+  .bar .stat b{color:var(--warn);font-variant-numeric:tabular-nums}
+  .bar .stat.done b{color:var(--ok)}
+  .btn{font:700 13.5px/1 var(--sans);border-radius:var(--r);padding:11px 20px;cursor:pointer;border:1.5px solid transparent;transition:.12s}
+  .btn.primary{background:var(--acc);color:var(--paper);border-color:var(--acc)}
+  .btn.primary:hover{background:var(--acc-2);border-color:var(--acc-2)}
+  .btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--line)}
+  .btn.ghost:hover{border-color:var(--acc);color:var(--acc)}
+  .btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+  .btn[disabled]{opacity:.5;cursor:default}
+  .btn.armed{border-color:var(--warn);color:var(--warn)}
+  .btn.primary.armed{background:var(--warn);border-color:var(--warn);color:var(--paper)}
+  .toast{font-size:12.5px;color:var(--acc);flex-basis:100%;margin:0}
+  .toast.err{color:var(--warn)}
+
+  .copybox{border:1.5px solid var(--acc);border-radius:var(--r);padding:14px;margin-bottom:26px;background:var(--sunk)}
+  .cbhead{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
+  .cbhead strong{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+  .cbhead span{font-size:12px;color:var(--muted)}
+  #out{width:100%;font:12.5px/1.5 var(--mono);color:var(--ink);background:var(--paper);
+       border:1px solid var(--line);border-radius:var(--r);padding:11px;resize:vertical}
+  #out:focus{outline:2px solid var(--acc);outline-offset:1px}
+
+  .foot{font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding:14px 0 30px;line-height:1.6}
+  .foot code{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+
+  @media (max-width:720px){ .f{grid-column:span 12 !important} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+  @media print{ .bar,.lede,.copybox{display:none} body{padding-bottom:0} .chip:not([aria-pressed="true"]){display:none} }
+</style>
+
+<div class="wrap">
+  <div class="mast">
+    <h1>Forecast Request</h1>
+    <div class="org">Mediadrive — Ad Operations<br>Complete before a forecast can be run</div>
+  </div>
+  <div class="rule"></div>
+
+  <p class="lede">A forecast is a query against real inventory, not an estimate. Fill this in,
+    press <b>Copy brief</b> and paste it into an email to ad ops. Fields marked with a dot are needed
+    to run the forecast at all — <b>format tier, geo and the site list are the three most often
+    left out, and the three that most change the answer.</b> Tick every format the request
+    covers and ops will forecast them together, in one pass.</p>
+
+  <div id="form"></div>
+
+  <section id="condsec">
+    <div class="shead"><span class="ltr">F</span><h2>Channel requirements</h2></div>
+    <div class="cond" id="cond"></div>
+  </section>
+
+  <div class="copybox" id="copybox" hidden>
+    <div class="cbhead">
+      <strong>Brief ready to paste</strong>
+      <span>Copied to your clipboard. If nothing pasted, click in the box, select all and copy.</span>
+    </div>
+    <textarea id="out" readonly rows="12"></textarea>
+  </div>
+
+  <div class="foot">
+    Field definitions, the tool each field feeds, and the campaign history behind them:
+    <code>processes/Forecast Request Intake</code> in the wiki.
+    Reference output: <code>projects/American-Golf-2026-H2-Forecast</code>.
+  </div>
+</div>
+
+<div class="bar">
+  <div class="stat" id="stat"></div>
+  <button class="btn ghost" id="clear" type="button">Clear</button>
+  <button class="btn ghost" id="print" type="button" hidden>Print</button>
+  <button class="btn primary" id="copy" type="button">Copy brief</button>
+  <button class="btn primary" id="dl" type="button" hidden>Download PDF</button>
+  <p class="toast" id="toast"></p>
+</div>
+
+<script>
+/* ============ schema — drives the form and the PDF ============ */
+const SCHEMA = [
+  { id:'a', title:'Commercial', fields:[
+    {id:'client',   label:'Client / advertiser', type:'text', req:1, span:5, pspan:5},
+    {id:'agency',   label:'Agency', hint:'or "direct"', type:'text', req:1, span:4, pspan:4},
+    {id:'code',     label:'Campaign code', hint:'CC no.', type:'text', span:3, pspan:3},
+    {id:'budget',   label:'Budget', type:'text', req:1, span:3, pspan:3, ph:'18,000'},
+    {id:'cpm',      label:'CPM / rate', type:'text', req:1, span:3, pspan:3, ph:'12.00'},
+    {id:'imps',     label:'Impression goal', type:'text', req:1, span:3, pspan:3, ph:'1,500,000'},
+    {id:'ccy',      label:'Currency', type:'radio', req:1, options:['GBP','EUR','USD'], span:3, pspan:3},
+    {id:'fixed',    label:'Which of the three is fixed by the client?', hint:'the other two get solved for',
+                    type:'radio', req:1, options:['Budget','CPM / rate','Impression goal'], span:7, pspan:7},
+    {id:'netgross', label:'Is the CPM net or gross?', type:'radio', req:1, options:['Net','Gross','Not sure'], span:5, pspan:5},
+  ], note:'Ad-serving / tech fee: £0.20 Ad Bundle · £2.00 Rich Media. A gross CPM entered as net loses margin silently.'},
+
+  { id:'b', title:'Delivery', fields:[
+    {id:'start',   label:'Flight start', type:'date', req:1, span:3, pspan:3},
+    {id:'end',     label:'Flight end',   type:'date', req:1, span:3, pspan:3},
+    {id:'movable', label:'Can the dates move?', type:'radio', req:1, options:['Yes','No'], span:3, pspan:3},
+    {id:'geo',     label:'Geo / market', hint:'countries, not "Europe"', type:'text', req:1, span:3, pspan:3, ph:'United Kingdom, Ireland'},
+    {id:'channel', label:'Channel', type:'checks', req:1, span:12, pspan:12,
+     options:['Display','Rich Media','Native','CTV','Video','DOOH','Programmatic / DSP','Email','Social']},
+    {id:'tier',    label:'Format tier', hint:'tick every format this request covers — one brief can carry several', type:'checks', req:1, span:12, pspan:6,
+     options:['Ad Bundle','Rich Media (Crown)','Standard IAB','Other']},
+    {id:'sizes',   label:'Ad sizes', hint:'only for Standard IAB or Other', type:'text', dynreq:1, span:6, pspan:6, ph:'970x250, 300x600'},
+    {id:'split',   label:'Budget split by format', hint:'this request covers more than one format', type:'text', dynreq:1, span:6, pspan:12,
+     ph:'Ad Bundle £12,000 · Rich Media £6,000'},
+    {id:'sitemode',label:'Sites / publishers', type:'radio', req:1, span:5, pspan:5,
+     options:['Portfolio-wide — ops chooses','Committed to the client']},
+    {id:'sites',   label:'If committed, list them', type:'text', span:7, pspan:7},
+    {id:'device',  label:'Device targeting', type:'radio', req:1, span:5, pspan:5,
+     options:['All','Desktop only','Mobile only','Tablet']},
+    {id:'freq',    label:'Frequency cap', hint:'e.g. 3 / 1 day', type:'text', span:3, pspan:3},
+    {id:'buytype', label:'Buy type', type:'radio', req:1, span:4, pspan:4,
+     options:['Guaranteed CPM','CPD','Sponsorship','Added value']},
+    {id:'incr',    label:'Incremental to something already booked on the same inventory?',
+     hint:'two live campaigns on one pool compete with each other', type:'text', span:12, pspan:12,
+     ph:'No — or name the campaign'},
+  ]},
+
+  { id:'c', title:'Targeting & measurement', fields:[
+    {id:'audience',label:'Desired audience', hint:'who the client wants to reach, in their words',
+     type:'textarea', req:1, span:12, pspan:12},
+    {id:'mech',    label:'How is that audience actually bought?', type:'radio', req:1, span:12, pspan:12,
+     options:['Contextual — site bucket','GAM key-value','DSP third-party segment','Not sure — ops to advise']},
+    {id:'kpi',     label:'Primary KPI', type:'radio', req:1, span:6, pspan:6,
+     options:['CTR','Viewability','Completion','Conversion','Reach']},
+    {id:'kpitgt',  label:'KPI target', type:'text', span:3, pspan:3, ph:'0.30%'},
+    {id:'excl',    label:'Brand safety / exclusions', type:'text', span:3, pspan:3},
+  ], note:'In GAM we have contextual and key-value only. Real age / gender data exists on HowDidiDo alone — "golfers 45+" is not bookable anywhere else. CTV has no click, so CTR is the wrong KPI on a CTV buy.'},
+
+  { id:'d', title:'Creative', fields:[
+    {id:'csource', label:'Creative source', type:'radio', req:1, span:6, pspan:6,
+     options:['Provided by Client','Built by Mediadrive']},
+    {id:'cexists', label:'Does it exist yet?', type:'radio', req:1, span:3, pspan:3,
+     options:['Yes','No','Partly']},
+    {id:'cdate',   label:'Expected delivery date', type:'date', span:3, pspan:3},
+  ], note:'A forecast that assumes a format whose creative never arrives is a line that goes live with nothing in it.'},
+
+  { id:'e', title:'Submission', fields:[
+    {id:'by',      label:'Submitted by', type:'text', req:1, span:4, pspan:4},
+    {id:'sdate',   label:'Date submitted', type:'date', req:1, span:3, pspan:3},
+    {id:'needed',  label:'Forecast needed by', type:'date', req:1, span:3, pspan:3},
+    {id:'going',   label:'Going to', type:'radio', span:2, pspan:2, options:['Client-facing','Internal']},
+    {id:'notes',   label:'Anything else ops should know',
+     hint:'history with this client, hard constraints, why the dates matter', type:'textarea', span:12, pspan:12},
+  ]},
+];
+
+const COND = [
+  {ch:'Rich Media', ask:'Position (mobile-top / desktop-top / desktop-top-slim), 468x60 confirmed, creative tag source. Rich Media forecasts at roughly 28% of unreserved supply — a real reservation that can run out.'},
+  {ch:'CTV',        ask:'Frequency cap, VAST asset confirmed, KPI must not be CTR, budget at least ~£3.5k. Clipcentric and Adnami cannot build CTV creative — it needs MP4 + VAST 2.0, no VPAID.'},
+  {ch:'Native',     ask:'Clean text-free photography at 1200x627 and 627x627. Finished banners get cropped by the native style and duplicate its CTA and logo.'},
+  {ch:'DOOH',       ask:'1080x1920 portrait, deal type, and whether the goal is Audience Impressions or raw impressions.'},
+  {ch:'Programmatic / DSP', ask:'Which DSP (Yahoo or DV360), the advertiser seat, and the audience segment source. DV360 has no availability forecast — it is projected from comparables.'},
+];
+/* ---------------- minimal PDF writer (base-14 Helvetica, no deps) ---------------- */
+const HW = {}; (function(){
+  const w = '278 278 355 556 556 889 667 191 333 333 389 584 278 333 278 278'.split(' ').map(Number);
+  for (let i=0;i<16;i++) HW[String.fromCharCode(32+i)] = w[i];
+  for (let i=0;i<10;i++) HW[String(i)] = 556;
+  const p2 = {':':278,';':278,'<':584,'=':584,'>':584,'?':556,'@':1015};
+  Object.assign(HW,p2);
+  const up = '667 667 722 722 667 611 778 722 278 500 667 556 833 722 778 667 778 722 667 611 722 667 944 667 667 611'.split(' ').map(Number);
+  for (let i=0;i<26;i++) HW[String.fromCharCode(65+i)] = up[i];
+  Object.assign(HW,{'[':278,'\\':278,']':278,'^':469,'_':556,'`':333});
+  const lo = '556 556 500 556 556 278 556 556 222 222 500 222 833 556 556 556 556 333 500 278 556 500 722 500 500 500'.split(' ').map(Number);
+  for (let i=0;i<26;i++) HW[String.fromCharCode(97+i)] = lo[i];
+  Object.assign(HW,{'{':334,'|':260,'}':334,'~':584,'£':556,'×':584,'·':278,'—':1000,'–':556,'€':556,'°':400});
+})();
+
+const NORM = {'\u2014':'—','\u2013':'–','\u2018':"'",'\u2019':"'",'\u201c':'"','\u201d':'"','\u2026':'...','\u00a0':' ','\u2022':'·'};
+const WIN  = {'£':0xA3,'×':0xD7,'·':0xB7,'—':0x97,'–':0x96,'€':0x80,'°':0xB0};
+
+function norm(s){ return String(s==null?'':s).replace(/[\u2014\u2013\u2018\u2019\u201c\u201d\u2026\u00a0\u2022]/g, c=>NORM[c]); }
+function strWidth(s, size, bold){
+  s = norm(s); let t=0;
+  for (const ch of s) t += (HW[ch]!==undefined?HW[ch]:556);
+  return t/1000*size*(bold?1.055:1);
+}
+function esc(s){
+  return norm(s).replace(/[\\()]/g, c=>'\\'+c).replace(/[^\x20-\x7E]/g, ch=>{
+    const c = WIN[ch]; return c===undefined ? '?' : '\\'+c.toString(8).padStart(3,'0');
+  });
+}
+function wrap(s, size, bold, maxW){
+  s = norm(s).trim(); if(!s) return [];
+  const out=[];
+  for (const para of s.split(/\n+/)) {
+    const words = para.split(/\s+/); let line='';
+    for (const w of words) {
+      const t = line ? line+' '+w : w;
+      if (strWidth(t,size,bold) <= maxW || !line) line = t;
+      else { out.push(line); line = w; }
+    }
+    if (line) out.push(line);
+  }
+  return out;
+}
+
+function buildFormPdf(vals){
+  const PW=595.28, PH=841.89, M={l:46,r:46,t:50,b:44};
+  const CW = PW - M.l - M.r, G = 11, TRACK = (CW - G*11)/12;
+  const spanW = n => n*TRACK + (n-1)*G;
+  const spanX = n => M.l + n*(TRACK+G);
+  const INK='0.078 0.086 0.102', GREY='0.44 0.47 0.50', RULE='0.80 0.83 0.85', ACC='0.055 0.361 0.318';
+
+  const pages=[]; let buf=[], y=0;
+  const out = s => buf.push(s);
+  const text = (x,yy,size,bold,str,col) => {
+    out(`BT ${col||INK} rg /${bold?'FB':'FR'} ${size} Tf 1 0 0 1 ${x.toFixed(2)} ${yy.toFixed(2)} Tm (${esc(str)}) Tj ET`);
+  };
+  const track = (x,yy,size,bold,str,tc,col) => {
+    out(`BT ${col||INK} rg /${bold?'FB':'FR'} ${size} Tf ${tc} Tc 1 0 0 1 ${x.toFixed(2)} ${yy.toFixed(2)} Tm (${esc(str)}) Tj 0 Tc ET`);
+  };
+  const rule = (x,yy,w,th,col) => out(`${col||RULE} RG ${th||0.6} w ${x.toFixed(2)} ${yy.toFixed(2)} m ${(x+w).toFixed(2)} ${yy.toFixed(2)} l S`);
+
+  function newPage(){ if(buf.length) pages.push(buf.join('\n')); buf=[]; y = PH - M.t; }
+  function ensure(h){ if (y - h < M.b) { newPage(); masthead(true); } }
+
+  function masthead(cont){
+    track(M.l, y, 13, true, 'FORECAST REQUEST', 2.6);
+    const r = 'MEDIADRIVE — AD OPERATIONS' + (cont?'  (CONT.)':'');
+    track(PW - M.r - strWidth(r,6.6,true) - 6.6*0.13*(r.length-1), y+1.5, 6.6, true, r, 1.3, GREY);
+    y -= 7; rule(M.l, y, CW, 1.6, ACC); y -= 17;
+  }
+
+  newPage(); masthead(false);
+
+  /* identity strip */
+  const idBits = [
+    ['CLIENT', vals.client||'—'],
+    ['CAMPAIGN', vals.code||'not yet assigned'],
+    ['FLIGHT', (vals.start||'—')+'  to  '+(vals.end||'—')],
+    ['SUBMITTED', (vals.by||'—')+(vals.sdate?'  ·  '+vals.sdate:'')],
+  ];
+  let ix = M.l;
+  for (const [k,v] of idBits){
+    const w = CW/4;
+    track(ix, y, 6.2, true, k, 1.2, GREY);
+    const lines = wrap(v, 9, true, w-10);
+    text(ix, y-12, 9, true, lines[0]||'—');
+    if (lines[1]) text(ix, y-22, 9, true, lines[1]);
+    ix += w;
+  }
+  y -= 30; rule(M.l, y, CW, 0.6); y -= 20;
+
+  function section(title, letter){
+    ensure(46);
+    track(M.l, y, 8.2, true, letter + '  ·  ' + title.toUpperCase(), 1.6, ACC);
+    y -= 6; rule(M.l, y, CW, 0.9, ACC); y -= 17;
+  }
+
+  function fieldHeight(f, v){
+    const w = spanW(f.pspan) - 6;
+    const lines = Math.max(1, wrap(v, f.type==='textarea'?8.6:9.2, false, w).length);
+    return 11 + lines*(f.type==='textarea'?10.6:11.4) + 8;
+  }
+  function drawField(f, v, col){
+    const x = spanX(col), w = spanW(f.pspan);
+    const size = f.type==='textarea' ? 8.6 : 9.2, lh = f.type==='textarea' ? 10.6 : 11.4;
+    track(x, y, 6.2, true, f.label.toUpperCase(), 1.1, GREY);
+    const lines = wrap(v||'—', size, false, w-6);
+    let ly = y - 12;
+    for (const ln of (lines.length?lines:['—'])) { text(x, ly, size, false, ln); ly -= lh; }
+    rule(x, ly + lh - 4.5, w, 0.5);
+  }
+
+  for (const sec of SCHEMA){
+    section(sec.title, sec.id.toUpperCase());
+    let col = 0, rowH = 0, pend = [];
+    const flush = () => {
+      if (!pend.length) return;
+      ensure(rowH);
+      for (const p of pend) drawField(p.f, p.v, p.c);
+      y -= rowH; pend = []; rowH = 0; col = 0;
+    };
+    for (const f of sec.fields){
+      const v = fmt(f, vals);
+      if (col + f.pspan > 12) flush();
+      const h = fieldHeight(f, v);
+      pend.push({f, v, c: col}); rowH = Math.max(rowH, h); col += f.pspan;
+      if (col >= 12) flush();
+    }
+    flush();
+    if (sec.note){
+      const lines = wrap(sec.note, 7.4, false, CW-8);
+      ensure(lines.length*9.6 + 10);
+      rule(M.l, y+7, 1.6, 0, ACC);
+      out(`${ACC} rg ${M.l.toFixed(2)} ${(y - lines.length*9.6 + 5).toFixed(2)} 1.6 ${(lines.length*9.6+3).toFixed(2)} re f`);
+      for (const ln of lines){ text(M.l+8, y, 7.4, false, ln, GREY); y -= 9.6; }
+      y -= 4;
+    }
+    y -= 8;
+  }
+
+  /* channel-conditional reminders that applied */
+  const chans = (vals.channel||[]);
+  const fired = COND.filter(c => chans.indexOf(c.ch) >= 0);
+  if (fired.length){
+    section('Channel requirements that applied', 'F');
+    for (const c of fired){
+      const lines = wrap(c.ask, 8.2, false, CW - 92);
+      ensure(lines.length*10.6 + 8);
+      text(M.l, y, 8.2, true, c.ch);
+      let ly = y;
+      for (const ln of lines){ text(M.l+92, ly, 8.2, false, ln, GREY); ly -= 10.6; }
+      y = ly - 5;
+    }
+    y -= 6;
+  }
+
+  /* ops footer block */
+  ensure(64);
+  rule(M.l, y+6, CW, 1.2, ACC); y -= 10;
+  track(M.l, y, 6.6, true, 'FOR AD OPS USE', 1.4, GREY); y -= 18;
+  const opsCells = ['Received','Run by','Tool / command','Verdict','Project page'];
+  const ow = CW/opsCells.length;
+  opsCells.forEach((c,i)=>{ track(M.l+i*ow, y, 6, true, c.toUpperCase(), 1, GREY); rule(M.l+i*ow, y-16, ow-10, 0.5); });
+  y -= 30;
+  text(M.l, y, 6.6, false, 'Field definitions and the failure history behind each field: processes/Forecast Request Intake in the wiki.', GREY);
+
+  pages.push(buf.join('\n'));
+
+  /* ---- assemble ---- */
+  const objs = [];
+  const add = s => { objs.push(s); return objs.length; };
+  const kidIds = [];
+  const contentIds = pages.map(p => add(`<< /Length ${p.length} >>\nstream\n${p}\nendstream`));
+  const fr = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  const fb = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  const pagesId = objs.length + pages.length + 1;
+  pages.forEach((_,i)=>{
+    kidIds.push(add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${PW} ${PH}] `+
+      `/Resources << /Font << /FR ${fr} 0 R /FB ${fb} 0 R >> >> /Contents ${contentIds[i]} 0 R >>`));
+  });
+  const pid = add(`<< /Type /Pages /Count ${kidIds.length} /Kids [${kidIds.map(i=>i+' 0 R').join(' ')}] >>`);
+  const cat = add(`<< /Type /Catalog /Pages ${pid} 0 R >>`);
+  const title = 'Forecast Request' + (vals.client ? ' — ' + vals.client : '');
+  const info = add(`<< /Title (${esc(title)}) /Creator (Mediadrive Forecast Request Form) >>`);
+
+  let pdf = '%PDF-1.4\n', offs = [];
+  objs.forEach((o,i)=>{ offs.push(pdf.length); pdf += `${i+1} 0 obj\n${o}\nendobj\n`; });
+  const xref = pdf.length;
+  pdf += `xref\n0 ${objs.length+1}\n0000000000 65535 f \n`;
+  offs.forEach(o => { pdf += String(o).padStart(10,'0') + ' 00000 n \n'; });
+  pdf += `trailer\n<< /Size ${objs.length+1} /Root ${cat} 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF`;
+
+  const bytes = new Uint8Array(pdf.length);
+  for (let i=0;i<pdf.length;i++) bytes[i] = pdf.charCodeAt(i) & 0xFF;
+  return bytes;
+}
+
+function fmt(f, vals){
+  const v = vals[f.id];
+  if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '—';
+  return Array.isArray(v) ? v.join(',  ') : String(v);
+}
+
+
+function fmt(f, vals){
+  const v = vals[f.id];
+  if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '—';
+  return Array.isArray(v) ? v.join(',  ') : String(v);
+}
+
+/* ============ form ============ */
+/* Entries live in memory for the life of the tab only. No browser storage is used —
+   nothing about a client's plan is written to the device. */
+const state = {};
+const $ = s => document.querySelector(s);
+
+function esch(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function fieldHtml(f){
+  const lbl = `<label class="lbl" for="i-${f.id}">${(f.req||f.dynreq)?'<span class="dot"></span>':''}${esch(f.label)}` +
+              (f.hint ? ` <span class="hint">${esch(f.hint)}</span>` : '') + `</label>`;
+  let ctl;
+  if (f.type === 'radio' || f.type === 'checks'){
+    ctl = `<div class="chips" data-id="${f.id}" data-multi="${f.type==='checks'?1:0}" role="group">` +
+      f.options.map(o => `<button type="button" class="chip" data-v="${esch(o)}" aria-pressed="false">${esch(o)}</button>`).join('') +
+      `</div>`;
+  } else if (f.type === 'textarea'){
+    ctl = `<textarea class="in" id="i-${f.id}" data-id="${f.id}" rows="3"></textarea>`;
+  } else {
+    ctl = `<input class="in" id="i-${f.id}" data-id="${f.id}" type="${f.type==='date'?'date':'text'}"` +
+          (f.ph ? ` placeholder="${esch(f.ph)}"` : '') + `>`;
+  }
+  return `<div class="f" data-f="${f.id}" style="grid-column:span ${f.span}">${lbl}${ctl}</div>`;
+}
+
+$('#form').innerHTML = SCHEMA.map(sec => {
+  const calc = sec.id === 'a' ? `<div class="calc" id="calc"></div>` : '';
+
+  return `<section>
+    <div class="shead"><span class="ltr">${sec.id.toUpperCase()}</span><h2>${esch(sec.title)}</h2></div>
+    <div class="grid">${sec.fields.map(f => fieldHtml(f) + (f.id === 'split' ? '<p class="note" id="implied"></p>' : '')).join('')}${calc}` +
+    (sec.note ? `<p class="note">${esch(sec.note)}</p>` : '') + `</div></section>`;
+}).join('');
+
+document.querySelectorAll('.in').forEach(i => {
+  i.addEventListener('input', () => { state[i.dataset.id] = i.value; refresh(); });
+});
+document.querySelectorAll('.chips').forEach(g => {
+  const id = g.dataset.id, multi = g.dataset.multi === '1';
+  g.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      if (multi){
+        const arr = Array.isArray(state[id]) ? state[id].slice() : [];
+        const i = arr.indexOf(c.dataset.v);
+        if (i >= 0) arr.splice(i,1); else arr.push(c.dataset.v);
+        state[id] = arr;
+        c.setAttribute('aria-pressed', i >= 0 ? 'false' : 'true');
+      } else {
+        const was = state[id] === c.dataset.v;
+        state[id] = was ? '' : c.dataset.v;
+        g.querySelectorAll('.chip').forEach(o => o.setAttribute('aria-pressed','false'));
+        if (!was) c.setAttribute('aria-pressed','true');
+      }
+      refresh();
+    });
+  });
+});
+
+/* ============ derived values + validation ============ */
+const num = s => { const n = parseFloat(String(s==null?'':s).replace(/[^0-9.]/g,'')); return isFinite(n) && n > 0 ? n : null; };
+const fmtN = n => n.toLocaleString('en-GB', {maximumFractionDigits:0});
+const CCY = {GBP:'£', EUR:'€', USD:'$'};
+
+function updateCalc(){
+  const box = $('#calc'), sym = CCY[state.ccy] || '';
+  const b = num(state.budget), c = num(state.cpm), i = num(state.imps);
+  const known = [b,c,i].filter(Boolean).length;
+  box.className = 'calc';
+  if (known < 2){
+    box.innerHTML = `<span class="tag">Derived</span><span style="color:var(--muted)">Enter any two of budget, CPM and impression goal — the third is calculated here.</span>`;
+    return;
+  }
+  if (known === 2){
+    let out;
+    if (!i) out = `Impression goal <span class="val">${fmtN(b/c*1000)}</span>`;
+    else if (!c) out = `CPM <span class="val">${sym}${(b/i*1000).toFixed(2)}</span>`;
+    else out = `Budget <span class="val">${sym}${fmtN(c*i/1000)}</span>`;
+    box.innerHTML = `<span class="tag">Derived</span><span>${out}</span>` +
+      `<span style="color:var(--muted);font-size:12px">— check this matches what the client was told, then type it in.</span>`;
+    return;
+  }
+  const expect = b/c*1000, drift = Math.abs(expect - i) / i;
+  if (drift > 0.02){
+    box.className = 'calc bad';
+    box.innerHTML = `<span class="tag">Does not reconcile</span>` +
+      `<span>${sym}${fmtN(b)} at ${sym}${c.toFixed(2)} CPM buys <span class="val">${fmtN(expect)}</span> impressions, ` +
+      `not <span class="val">${fmtN(i)}</span> — a gap of <span class="val">${(drift*100).toFixed(0)}%</span>. ` +
+      `Say which figure is the fixed one and ops will solve for the rest.</span>`;
+  } else {
+    box.innerHTML = `<span class="tag">Reconciles</span>` +
+      `<span>${sym}${fmtN(b)} at ${sym}${c.toFixed(2)} CPM = <span class="val">${fmtN(expect)}</span> impressions.</span>`;
+  }
+}
+
+const IMPLIED = {'Ad Bundle':'300x250, 320x100, 300x600, 970x250, 728x90', 'Rich Media (Crown)':'468x60'};
+const tiers = () => Array.isArray(state.tier) ? state.tier : [];
+const needsSizes = () => tiers().some(t => t === 'Standard IAB' || t === 'Other');
+const needsSplit = () => tiers().length >= 2;
+
+function updateTierUI(){
+  const t = tiers();
+  const known = t.filter(x => IMPLIED[x]);
+  const note = $('#implied'), sizesF = document.querySelector('.f[data-f="sizes"]'),
+        splitF = document.querySelector('.f[data-f="split"]');
+  if (known.length){
+    note.style.display = '';
+    note.textContent = known.map(x => x + ' covers ' + IMPLIED[x]).join(' · ') +
+      ' — no need to list those sizes.' +
+      (needsSizes() ? ' List sizes only for the Standard IAB / Other part of the buy.' : '');
+  } else {
+    note.style.display = t.length ? '' : 'none';
+    note.textContent = t.length ? 'List the exact sizes this buy needs.' : '';
+  }
+  sizesF.style.display = needsSizes() || !t.length ? '' : 'none';
+  splitF.style.display = needsSplit() ? '' : 'none';
+  sizesF.querySelector('.dot').style.display = needsSizes() ? '' : 'none';
+}
+
+function requiredFields(){
+  const out = [];
+  SCHEMA.forEach(s => s.fields.forEach(f => {
+    let req = !!f.req;
+    if (f.id === 'sites')  req = state.sitemode === 'Committed to the client';
+    if (f.id === 'sizes')  req = needsSizes();
+    if (f.id === 'split')  req = needsSplit();
+    if (req) out.push(f);
+  }));
+  return out;
+}
+function isEmpty(f){
+  const v = state[f.id];
+  return v == null || v === '' || (Array.isArray(v) && !v.length);
+}
+
+function updateCond(){
+  const chans = Array.isArray(state.channel) ? state.channel : [];
+  const fired = COND.filter(c => chans.indexOf(c.ch) >= 0);
+  $('#cond').innerHTML = fired.length
+    ? fired.map(c => `<div class="cbox"><h3>${esch(c.ch)}</h3><p>${esch(c.ask)}</p></div>`).join('')
+    : `<p class="cempty">Tick a channel above and anything it specifically needs will appear here.</p>`;
+}
+
+function refresh(){
+  updateCalc(); updateCond(); updateTierUI();
+  const missing = requiredFields().filter(isEmpty);
+  document.querySelectorAll('.f').forEach(el => el.classList.remove('miss'));
+  const stat = $('#stat');
+  const warns = [];
+  const chans = Array.isArray(state.channel) ? state.channel : [];
+  if (chans.indexOf('CTV') >= 0 && state.kpi === 'CTR') warns.push('CTV has no click — CTR cannot be the KPI on a CTV buy.');
+  if (chans.indexOf('Rich Media') >= 0 && tiers().length && tiers().indexOf('Rich Media (Crown)') < 0) warns.push('Channel says Rich Media but no Rich Media format tier is ticked — these forecast very differently.');
+  if (chans.indexOf('CTV') >= 0 && state.csource === 'Built by Mediadrive') warns.push('CTV creative cannot be built in-house — Clipcentric and Adnami produce no VAST 2.0 asset.');
+  if (missing.length){
+    stat.className = 'stat';
+    stat.innerHTML = `<b>${missing.length}</b> required field${missing.length===1?'':'s'} still empty — ` +
+      `first is <b>${esch(missing[0].label)}</b>.` + (warns.length ? ` · ${esch(warns[0])}` : '');
+  } else {
+    stat.className = 'stat done';
+    stat.innerHTML = warns.length ? esch(warns[0]) : `<b>Complete.</b> Download the PDF and send it to ad ops.`;
+  }
+  return missing;
+}
+
+/* ============ actions ============ */
+function toast(msg, err){ const t = $('#toast'); t.textContent = msg || ''; t.className = 'toast' + (err ? ' err' : ''); }
+
+function arm(btn, label, ms, onFire){
+  let armed = false, t = null;
+  const reset = () => { armed = false; btn.textContent = btn.dataset.label; btn.classList.remove('armed'); };
+  btn.dataset.label = btn.textContent;
+  btn.addEventListener('click', () => {
+    if (!armed){ if (!onFire.check()) return; armed = true; btn.textContent = label;
+      btn.classList.add('armed'); clearTimeout(t); t = setTimeout(reset, ms); return; }
+    clearTimeout(t); reset(); onFire.go();
+  });
+}
+
+arm($('#clear'), 'Press again to clear', 5000, {
+  check: () => true,
+  go: () => {
+    Object.keys(state).forEach(k => delete state[k]);
+    document.querySelectorAll('.in').forEach(i => i.value = '');
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed','false'));
+    $('#copybox').hidden = true;
+    refresh(); toast('Form cleared.');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+});
+$('#print').addEventListener('click', () => window.print());
+
+$('#copy').addEventListener('click', async () => {
+  refresh();
+  const text = plainText(), box = $('#copybox'), out = $('#out');
+  out.value = text; box.hidden = false;
+  out.focus(); out.setSelectionRange(0, text.length);
+  let copied = false;
+  try { await navigator.clipboard.writeText(text); copied = true; }
+  catch(e){ try { copied = document.execCommand('copy'); } catch(e2){ copied = false; } }
+  $('.cbhead span').textContent = copied
+    ? 'Copied to your clipboard — paste it into an email to ad ops.'
+    : 'Select the text below and copy it, then paste it into an email to ad ops.';
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+  const missing = requiredFields().filter(isEmpty);
+  toast(missing.length
+    ? `Brief copied, but ${missing.length} required field${missing.length===1?' is':'s are'} still empty.`
+    : 'Brief copied. Paste it into an email to ad ops.', missing.length > 0);
+});
+
+function filename(){
+  const c = (state.client || '').replace(/[^A-Za-z0-9 ._-]/g,'').trim().replace(/\s+/g,'-');
+  const d = state.sdate || new Date().toISOString().slice(0,10);
+  return c ? `Forecast-Request_${c}_${d}.pdf` : `Forecast-Request_${d}.pdf`;
+}
+function forPdf(){
+  const v = Object.assign({}, state);
+  const known = tiers().filter(t => IMPLIED[t]);
+  const implied = known.map(t => IMPLIED[t]).join(', ');
+  if (implied) v.sizes = v.sizes ? implied + ', ' + v.sizes : implied + '  (implied by format tier)';
+  return v;
+}
+
+function plainText(){
+  const v = forPdf();
+  let s = 'FORECAST REQUEST';
+  if (v.client) s += ' — ' + v.client + (v.code ? ' (' + v.code + ')' : '');
+  s += '\n' + '='.repeat(58) + '\n\n';
+  SCHEMA.forEach(sec => {
+    s += sec.title.toUpperCase() + '\n' + '-'.repeat(sec.title.length) + '\n';
+    sec.fields.forEach(f => {
+      if (f.id === 'sizes' && !needsSizes()) return;
+      if (f.id === 'split' && !needsSplit()) return;
+      s += '  ' + f.label + ': ' + fmt(f, v) + '\n';
+    });
+    s += '\n';
+  });
+  const fired = COND.filter(c => (v.channel || []).indexOf(c.ch) >= 0);
+  if (fired.length){
+    s += 'CHANNEL REQUIREMENTS THAT APPLY\n-------------------------------\n';
+    fired.forEach(c => { s += '  ' + c.ch + ': ' + c.ask + '\n'; });
+    s += '\n';
+  }
+  const missing = requiredFields().filter(isEmpty);
+  if (missing.length) s += 'STILL MISSING: ' + missing.map(f => f.label).join('; ') + '\n';
+  return s;
+}
+
+/* Where can this copy of the page put a file?
+   'cap'  — running as a published Artifact that was granted the downloads capability
+   'blob' — running from a normal web server or a local file: ordinary browser download
+   'copy' — sandboxed with no file route: the brief is copied to the clipboard instead */
+let downloads = null, mode = 'copy';
+
+(async () => {
+  if (window.claude && typeof window.claude.use === 'function'){
+    try { downloads = await window.claude.use('downloads'); } catch(e){ downloads = null; }
+    mode = downloads ? 'cap' : 'copy';
+  } else {
+    mode = 'blob';
+  }
+  $('#dl').hidden = (mode === 'copy');
+  /* window.print() is ignored in the artifact's sandboxed frame (no allow-modals), so the
+     Print button only exists where it actually does something: self-hosted or local. */
+  $('#print').hidden = (mode !== 'blob');
+  if (mode !== 'copy'){
+    $('#copy').classList.remove('primary'); $('#copy').classList.add('ghost');
+  }
+})();
+
+function blobSave(name, bytes){
+  const url = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.style.display = 'none';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1500);
+}
+
+let dlArmed = false, dlTimer = null;
+function disarmDl(){ dlArmed = false; $('#dl').textContent = 'Download PDF'; $('#dl').classList.remove('armed'); }
+
+$('#dl').addEventListener('click', async () => {
+  const missing = refresh();
+  if (missing.length && !dlArmed){
+    missing.forEach(f => { const n = document.querySelector(`.f[data-f="${f.id}"]`); if (n) n.classList.add('miss'); });
+    const el = document.querySelector(`.f[data-f="${missing[0].id}"]`);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    dlArmed = true;
+    $('#dl').textContent = 'Download anyway';
+    $('#dl').classList.add('armed');
+    clearTimeout(dlTimer); dlTimer = setTimeout(disarmDl, 10000);
+    toast(`${missing.length} required field${missing.length===1?' is':'s are'} still empty — press again to download as it stands.`, true);
+    return;
+  }
+  clearTimeout(dlTimer); disarmDl();
+  const btn = $('#dl'); btn.disabled = true; toast('Building the PDF…');
+  try {
+    const bytes = buildFormPdf(forPdf());
+    if (mode === 'blob'){ blobSave(filename(), bytes); toast('PDF saved. Send it to ad ops.'); return; }
+    await downloads.save({ filename: filename(), data: bytes });
+    toast('Saved. Send it to ad ops.');
+  } catch (err){
+    const code = err && err.code;
+    if (code === 'declined') toast('');
+    else if (code === 'rate_limited') toast('A save prompt is already open — try again in a moment.', true);
+    else if (code === 'extension_not_enabled' || code === 'rejected_extension'){
+      $('#copy').click();
+      toast('PDF saving is not enabled in this view — the brief has been copied instead.', true);
+    }
+    else { $('#copy').click(); toast('The PDF could not be handed over — the brief has been copied instead.', true); }
+    /* no Print suggestion here: printing is unavailable in the sandboxed frame */
+  } finally { btn.disabled = false; }
+});
+
+window.addEventListener('beforeunload', e => {
+  if (Object.keys(state).some(k => { const v = state[k]; return Array.isArray(v) ? v.length : v; })){
+    e.preventDefault(); e.returnValue = '';
+  }
+});
+
+refresh();
+</script>
