@@ -150,12 +150,6 @@
     </div>
     <textarea id="out" readonly rows="12"></textarea>
   </div>
-
-  <div class="foot">
-    Field definitions, the tool each field feeds, and the campaign history behind them:
-    <code>processes/Forecast Request Intake</code> in the wiki.
-    Reference output: <code>projects/American-Golf-2026-H2-Forecast</code>.
-  </div>
 </div>
 
 <div class="bar">
@@ -217,7 +211,7 @@ const SCHEMA = [
      options:['CTR','Viewability','Completion','Conversion','Reach']},
     {id:'kpitgt',  label:'KPI target', type:'text', span:3, pspan:3, ph:'0.30%'},
     {id:'excl',    label:'Brand safety / exclusions', type:'text', span:3, pspan:3},
-  ], note:'In GAM we have contextual and key-value only. Real age / gender data exists on HowDidiDo alone — "golfers 45+" is not bookable anywhere else. CTV has no click, so CTR is the wrong KPI on a CTV buy.'},
+  ]},
 
   { id:'d', title:'Creative', fields:[
     {id:'csource', label:'Creative source', type:'radio', req:1, span:6, pspan:6,
